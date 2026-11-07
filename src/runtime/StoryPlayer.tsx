@@ -33,7 +33,9 @@ function StoryPlayer() {
     return () => abort.abort();
   }, []);
   return (
-    <main className="story-runtime">
+    <main
+      className={`story-runtime${work?.variables.experience === "romance" ? " romance-runtime" : ""}`}
+    >
       {work ? (
         <Phone work={work} />
       ) : (

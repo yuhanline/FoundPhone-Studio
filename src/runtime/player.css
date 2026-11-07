@@ -16,6 +16,55 @@
 .story-runtime .phone-shell {
   margin: auto;
 }
+.romance-runtime {
+  background:
+    radial-gradient(ellipse at 20% 20%, #f4ded6, transparent 55%),
+    radial-gradient(ellipse at 90% 80%, #d9dfd1, transparent 50%), #eee7e1;
+}
+.romance-compose {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 7px;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #d5d5d8;
+  border-radius: 20px;
+  padding: 5px 6px 5px 12px;
+}
+.romance-compose input {
+  min-width: 0;
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #1c1c1e;
+  font: inherit;
+  font-size: 14px;
+  padding: 3px 0;
+}
+.romance-compose input:focus {
+  outline: none;
+}
+.romance-compose:focus-within {
+  outline: 2px solid #87b8ec;
+  outline-offset: 1px;
+}
+.romance-compose button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: #007aff;
+  color: white;
+  padding: 0;
+}
+.romance-compose button:disabled {
+  background: #b6bdc7;
+}
 @media (max-width: 430px) {
   .story-runtime {
     background: #000;
