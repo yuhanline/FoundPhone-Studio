@@ -64,6 +64,8 @@ import {
 } from "./schema";
 import { dispatch, choose, visible, advance } from "./engine";
 import { db } from "./persistence";
+import { RomanceConversation } from "./runtime/RomanceComposer";
+import { sendRomanceMessage } from "./runtime/romance";
 export function AppIcon({
   id,
   name,
@@ -453,6 +455,9 @@ function PhoneRuntime({
                   creator={creator}
                   state={s}
                   onRead={(id) => event("read", id)}
+                  onSend={(text) =>
+                    update(sendRomanceMessage(work, runtimeRef.current, text))
+                  }
                   onEdit={(item) => onEdit?.(app, item)}
                   onAdd={() => onAdd?.(app)}
                   onBack={() => setApp("")}
@@ -579,8 +584,16 @@ function PhoneRuntime({
           )}
           {!creator && s.choices.length > 0 && !locked && (
             <div className="story-overlay">
-              <span className="eyebrow">故事来到一个岔路口</span>
-              <h3>你会如何选择？</h3>
+              <span className="eyebrow">
+                {work.variables.experience === "romance"
+                  ? "和他的小日常"
+                  : "故事来到一个岔路口"}
+              </span>
+              <h3>
+                {work.variables.experience === "romance"
+                  ? "想怎么回复他？"
+                  : "你会如何选择？"}
+              </h3>
               {s.choices.map((c) => (
                 <button
                   key={c.target}
@@ -594,8 +607,16 @@ function PhoneRuntime({
           )}
           {!creator && s.endings.length > 0 && !locked && (
             <div className="story-overlay ending">
-              <span className="eyebrow">ENDING · {s.endings.length}</span>
-              <h2>故事在这里停泊。</h2>
+              <span className="eyebrow">
+                {work.variables.experience === "romance"
+                  ? "收藏今天的心动"
+                  : `ENDING · ${s.endings.length}`}
+              </span>
+              <h2>
+                {work.variables.experience === "romance"
+                  ? "今天，也被好好爱着。"
+                  : "故事在这里停泊。"}
+              </h2>
               <p>{s.endings[s.endings.length - 1]}</p>
               <button
                 onClick={() => {
@@ -604,7 +625,9 @@ function PhoneRuntime({
                   setLocked(true);
                 }}
               >
-                重新开始
+                {work.variables.experience === "romance"
+                  ? "再过一次今天"
+                  : "重新开始"}
               </button>
             </div>
           )}
@@ -861,6 +884,7 @@ function AppContent({
   creator,
   state,
   onRead,
+  onSend,
   onEdit,
   onAdd,
   onBack,
@@ -874,6 +898,7 @@ function AppContent({
   creator: boolean;
   state: Runtime;
   onRead: (id: string) => void;
+  onSend?: (text: string) => void;
   onEdit: (item: Item) => void;
   onAdd: () => void;
   onBack: () => void;
@@ -894,6 +919,12 @@ function AppContent({
     .filter((i) =>
       (i.title + i.body + i.sender).toLowerCase().includes(q.toLowerCase()),
     );
+  if (
+    work.variables.experience === "romance" &&
+    app.id === work.variables.chatApp
+  ) {
+    shown.sort((a, b) => a.time.localeCompare(b.time));
+  }
   const filtered =
     tab === "收藏"
       ? shown.filter((i) => i.favorite)
@@ -985,22 +1016,33 @@ function AppContent({
       <>
         <div className="catalog-slot" hidden={!!detail}>
           <Suspense fallback={<div className="catalog-loading">正在打开…</div>}>
-            <Skin
-              appId={app.id}
-              owner={work.phone.owner}
-              virtualTime={state.time}
-              ui={state.ui?.[app.id]}
-              onUi={creator ? undefined : onUi}
-              name={name}
-              items={shown}
-              creator={creator}
-              onRead={onRead}
-              onItem={read}
-              onAdd={onAdd}
-              onBack={onBack}
-              thread={thread}
-              onThread={setThread}
-            />
+            <RomanceConversation.Provider
+              value={
+                !creator &&
+                work.variables.experience === "romance" &&
+                app.id === work.variables.chatApp &&
+                thread === work.variables.boyfriendChat
+                  ? (onSend ?? null)
+                  : null
+              }
+            >
+              <Skin
+                appId={app.id}
+                owner={work.phone.owner}
+                virtualTime={state.time}
+                ui={state.ui?.[app.id]}
+                onUi={creator ? undefined : onUi}
+                name={name}
+                items={shown}
+                creator={creator}
+                onRead={onRead}
+                onItem={read}
+                onAdd={onAdd}
+                onBack={onBack}
+                thread={thread}
+                onThread={setThread}
+              />
+            </RomanceConversation.Provider>
           </Suspense>
         </div>
         {detail &&

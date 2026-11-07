@@ -38,6 +38,10 @@ import {
   Lock,
 } from "lucide-react";
 import { motion } from "motion/react";
+import {
+  RomanceConversation,
+  RomanceComposer,
+} from "./runtime/RomanceComposer";
 import type { Work } from "./schema";
 export const KeyboardContext = createContext<(open: boolean) => void>(() => {});
 export function NativeComposer({
@@ -48,6 +52,8 @@ export function NativeComposer({
   onAdd: () => void;
 }) {
   const open = useContext(KeyboardContext);
+  const romanceSend = useContext(RomanceConversation);
+  if (!creator && romanceSend) return <RomanceComposer />;
   return (
     <button
       className="native-compose-field"

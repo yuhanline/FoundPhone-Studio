@@ -12,7 +12,7 @@ import {
   Smile,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Item } from "../schema";
 import {
   Add,
@@ -36,8 +36,12 @@ function Bubbles({
   items: Item[];
   className?: string;
 }) {
+  const scroll = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight;
+  }, [items.length]);
   return (
-    <div className={`catalog-bubbles ${className}`}>
+    <div ref={scroll} className={`catalog-bubbles ${className}`}>
       <time className="bubble-date">{items[0]?.time.slice(0, 10)}</time>
       {items.map((i) => (
         <div
